@@ -49,23 +49,23 @@ class fotos_to_YD:    # создаем класс
             'Authorization': 'OAuth {}'.format(self.token)  # авторизационный заголовок
         }
 
-    def get_upload_link(self, disk_file_path): #функция получает у Яндекса ссылку на путь в ЯДиске, куда буду размещать файл
-        upload_url = "https://cloud-api.yandex.net/v1/disk/resources/upload"    #url в соответствии с нужным методом (на Полигоне Яндекса)
-        headers = self.get_headers()    # получаем определенные ранее заголовки
-        params = {"path": disk_file_path, "overwrite": "true"}    #путь, куда грузить файл #перезаписать если есть такой же файл
-        response = requests.get(url = upload_url, headers = headers, params = params)   #получение ссылки, куда будем грузить файл
-        return response.json()    
+    def get_upload_dir(self): #функция создает на ЯДиске папку, куда буду размещать файл
+        upload_url = "https://cloud-api.yandex.net/v1/disk/resources/"    #url в соответствии с нужным методом (на Полигоне Яндекса)
+        headers = self.get_headers()    # назначаем определенные ранее заголовки
+        params = {'path': 'PYTHON2'}    #путь, куда грузить файл (название папки)
+        return requests.put(url = upload_url, headers = headers, params = params)   #создание папки, куда будем грузить файл
 
-    def upload_file_to_disk(self, VK_fotos_url_list):            
-            href_response = self.get_upload_link(disk_file_path = 'PYTHON')    #ссылка на загрузку с указанным мной путём
-            href = href_response.get("href", "")    #получение этой ссылки (первый аргумент - значение по ключу href, второй аргумент - значение по умолчанию если нет ключа)
-            for foto_url in VK_fotos_url_list:
-                with open (foto_url, 'rb') as img:
-                    response = requests.post(url = href, files = {"file": img})    #загружаю файл по полученной ссылке, открываю файл для чтения
-                    response.raise_for_status()
-                    if response.status_code == 201:
-                        print("Success")
-
+    def upload_file_to_disk(self, VK_fotos_url_list):   #функция заружает файл в созданную ранее папку
+        yandex_upload_url = 'https://cloud-api.yandex.net/v1/disk/resources/upload/'    #url в соответствии с нужным методом (на Полигоне Яндекса)
+        headers = self.get_headers()    # назначаем определенные ранее заголовки
+        for foto_url in VK_fotos_url_list:       # перебираем URL отобранных по размеру фото  
+            params_upload = {'path': 'PYTHON2/new.jpg', 'url': foto_url}  # обозначаем папку на ЯДиске, новое название файла. Во втором аргументе - ссылку на отобранное фото в ВК
+            response = requests.post(url=yandex_upload_url, params=params_upload, headers=headers) # делаю запрос на загрузку файла
+            
+            if response.status_code == 201: # проверка
+                print("Success")
+            else:
+                print(response.status_code)
 
 if __name__== '__main__':   # запуск кода
     YD_foto = foto_VK_request(config["VK_to_YD"]["VK_id"])
