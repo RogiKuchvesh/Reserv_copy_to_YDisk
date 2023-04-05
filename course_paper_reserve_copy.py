@@ -58,19 +58,21 @@ class fotos_to_YD:    # создаем класс
     def upload_file_to_disk(self, VK_fotos_url_list):   #функция заружает файл в созданную ранее папку
         yandex_upload_url = 'https://cloud-api.yandex.net/v1/disk/resources/upload/'    #url в соответствии с нужным методом (на Полигоне Яндекса)
         headers = self.get_headers()    # назначаем определенные ранее заголовки
+        folder = self.get_upload_dir()  # вызов метода для создания папки
         for foto_url in VK_fotos_url_list:       # перебираем URL отобранных по размеру фото  
             params_upload = {'path': 'PYTHON2/new.jpg', 'url': foto_url}  # обозначаем папку на ЯДиске, новое название файла. Во втором аргументе - ссылку на отобранное фото в ВК
             response = requests.post(url=yandex_upload_url, params=params_upload, headers=headers) # делаю запрос на загрузку файла
             
+            print(response.content)
             if response.status_code == 201: # проверка
                 print("Success")
             else:
                 print(response.status_code)
 
 if __name__== '__main__':   # запуск кода
-    YD_foto = foto_VK_request(config["VK_to_YD"]["VK_id"])
-    New_foto = fotos_to_YD(config["VK_to_YD"]["YD_token"])
-    res = New_foto.upload_file_to_disk(YD_foto.url_list)
+    YD_foto = foto_VK_request(config["VK_to_YD"]["VK_id"])  # создание экземпляра класса
+    New_foto = fotos_to_YD(config["VK_to_YD"]["YD_token"])  # создание экземпляра класса    
+    res = New_foto.upload_file_to_disk(YD_foto.url_list)    # вызов метода, загружающего файлы в папку на Ядиске
    
     with open('fotos_data.json', 'w') as outfile:    # запись списка названий и размеров отобранных фото в файл
         json.dump(YD_foto.json, outfile)
