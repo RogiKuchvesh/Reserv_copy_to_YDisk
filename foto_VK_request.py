@@ -12,8 +12,8 @@ class FotoVKrequest:
 
     # def __init__(self, user_id, token, version="5.131"):
     def __init__(self, user_id, token, count, version="5.131"):
-        self.token = token
         self.id = user_id
+        self.token = token        
         self.count = count
         self.version = version
         self.params = {"access_token": self.token, "v": self.version}
